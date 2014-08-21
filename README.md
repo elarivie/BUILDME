@@ -52,11 +52,12 @@ Exit code 0 only if the build is successful
 Behaviour
 ----
 * Shall abort if invalid parameters are given
-* Shall create the OUTPUT folder or exit with an error if it exists already
-* Should remove generated data in the TEMP folder before exiting
 * Should exit with an error if the given TEMP or OUTPUT folder is in the SOURCE folder
-* Should exit with an error if the SOURCE folder content is modified
 * Should exit with an error if an external dependency is missing on the system.
+* Shall create the OUTPUT folder or exit with an error if it exists already
+* **Should build the project and put the result in OUTPUT**
+* Should exit with an error if the SOURCE folder content is modified
+* Should remove generated data in the TEMP folder before exiting
 
 Important Note
 ----
