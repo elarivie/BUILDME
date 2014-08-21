@@ -1,0 +1,119 @@
+#!/bin/sh
+#	This is a template script to build a project
+#
+#	This script:
+#		- Should be named "build"
+#		- Should be present at the project root folder
+#		- Should be executable (chmod +x build)
+#		- Should contains all the build process steps implemented at the end of the script
+
+C_SRC=""
+C_TMP=""
+C_OUT=""
+while [ "$#" -ne 0 ]; do
+	case "${1}" in
+    	"-h"|"--help")
+			shift
+    	    echo "usage: build_python3_2 [-h] [-s SOURCE] [-t TEMP] [-o OUTPUT] [-V]"
+    	    echo ""
+    	    echo "Build the project"
+    	    echo ""
+    	    echo "optional arguments:"
+    	    echo "  -h, --help            show this help message and exit"
+    	    echo "  -s SOURCE, --source SOURCE"
+    	    echo "                        source folder (Default: Current working directory)"
+    	    echo "  -t TEMP, --temp TEMP  temporary folder (Default: new temporary directory in"
+    	    echo "                        the system temporary directory)"
+    	    echo "  -o OUTPUT, --output OUTPUT"
+    	    echo "                        output folder, shall not already exist (Default: new"
+    	    echo "                        temporary directory in TEMPFOLDER)"
+    	    echo "  -V, --version         show program's version number and exit"
+    	    echo ""
+    	    echo "Exit code 0 if build is successfull"
+    	;;
+		"-s"|"--source")
+			shift
+			if [ "$#" -eq 0 ]; then
+				exit 1
+			fi
+			if [ ! -z "${C_SRC}" ]; then
+				exit 1
+			fi
+			C_SRC="${1}"
+			shift
+		;;
+		"-t"|"--temp")
+			shift
+			if [ "$#" -eq 0 ]; then
+				exit 1
+			fi
+			if [ ! -z "${C_TMP}" ]; then
+				exit 1
+			fi
+			C_TMP="${1}"
+			shift
+		;;
+		"-o"|"--output")
+			shift
+			if [ "$#" -eq 0 ]; then
+				exit 1
+			fi
+			if [ ! -z "${C_OUT}" ]; then
+				exit 1
+			fi
+			C_OUT="${1}"
+			shift
+		;;
+		"-V"|"--version")
+			shift
+			echo "build 1.0"
+			exit 0
+		;;
+		*)
+			exit 1
+		;;
+	esac
+done
+V_EXITCODE=0
+C_OLDTMPDIR="${TMPDIR}"
+export TMPDIR="${C_TMP}"
+C_ACTUALTMP=`mktemp -d`
+export TMPDIR="${C_ACTUALTMP}"
+trap 'rm -rf "${C_ACTUALTMP}"; exit ${V_EXITCODE}' 0 1 2 3 15
+if [ -z "${C_SRC}" ]; then
+	C_SRC=`mktemp -d`
+fi
+C_TMP=`mktemp -d`
+if [ -z "${C_OUT}" ]; then
+	C_OUT=`mktemp -d`
+else
+	mkdir -p "${C_OUT}"
+fi
+export TMPDIR="${C_OLDTMPDIR}"
+if [ ! -d "${C_SRC}" ]; then
+	V_EXITCODE=1;exit ${V_EXITCODE}
+fi
+if [ ! -d "${C_TMP}" ]; then
+	V_EXITCODE=1;exit ${V_EXITCODE}
+fi
+if [ ! -d "${C_OUT}" ]; then
+	V_EXITCODE=1;exit ${V_EXITCODE}
+fi
+
+########################################################
+############################
+############################ You Don't have to edit anything above this line, if you have to, please fill an issue at XXX
+############################
+########################################################
+
+#build the project
+# C_SRC -- Contains the source path directory, the build steps shall only access this folder in read only mode
+# C_TMP -- Contains the temporary directory
+# C_OUT -- Contains the output path directory
+# V_ExitCode 0 on success
+
+#TODO: The presence of required external dependency should be validated here.
+#TODO: The build steps to build the project shall be implemented here
+#TODO: Remove the following line
+V_EXITCODE=1;exit ${V_EXITCODE}
+
