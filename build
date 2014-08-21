@@ -8,7 +8,7 @@
 		- Should be named "build"
 		- Should be present at the project root folder
 		- Should be executable (chmod +x build)
-		- Should contains all the build process steps implemented into the function build (see below)
+		- Should contains all the project build process steps implemented into the function build (see below)
 """
 
 def build(p_Src, p_Tmp, p_Out):
@@ -26,11 +26,14 @@ def build(p_Src, p_Tmp, p_Out):
 	return 0
 
 ########################################################
+########################################################
 ############################
-############################ You don't have to edit anything below this line, if you have to, please fill an issue at https://github.com/elarivie/build
-############################ Anything above this line is in the public domain or WTFPL (pick the one which best fits your needs)
-############################ The Code present below this line is part of the project <https://github.com/elarivie/build> and is licensed under GPLv3
+############################ Copy this template build executable to your own project root folder
+############################ Anything above this line is considered part of your project
+############################ Anything below this line is part of the project <https://github.com/elarivie/build> and is licensed under GPLv3
+############################ Note: You don't have to edit anything below this line, if you have to, please fill an issue at https://github.com/elarivie/build
 ############################
+########################################################
 ########################################################
 def main(p_Args):
 	import argparse
