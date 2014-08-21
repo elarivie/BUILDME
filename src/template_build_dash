@@ -14,7 +14,7 @@ while [ "$#" -ne 0 ]; do
 	case "${1}" in
     	"-h"|"--help")
 			shift
-    	    echo "usage: build_python3_2 [-h] [-s SOURCE] [-t TEMP] [-o OUTPUT] [-V]"
+    	    echo "usage: build [-h] [-s SOURCE] [-t TEMP] [-o OUTPUT] [-V]"
     	    echo ""
     	    echo "Build the project"
     	    echo ""
@@ -87,7 +87,7 @@ C_TMP=`mktemp -d`
 if [ -z "${C_OUT}" ]; then
 	C_OUT=`mktemp -d`
 else
-	mkdir -p "${C_OUT}"
+	mkdir "${C_OUT}"
 fi
 export TMPDIR="${C_OLDTMPDIR}"
 if [ ! -d "${C_SRC}" ]; then
@@ -101,9 +101,14 @@ if [ ! -d "${C_OUT}" ]; then
 fi
 
 ########################################################
+########################################################
 ############################
-############################ You Don't have to edit anything above this line, if you have to, please fill an issue at XXX
+############################ Copy this template build executable to your own project root folder
+############################ Anything above this line is part of the project <https://github.com/elarivie/build> and is licensed under GPLv3
+############################ Anything below this line is considered part of your project
+############################ Note: You don't have to edit anything above this line, if you have to, please fill an issue at https://github.com/elarivie/build
 ############################
+########################################################
 ########################################################
 
 #build the project
@@ -115,5 +120,8 @@ fi
 #TODO: The presence of required external dependency should be validated here.
 #TODO: The build steps to build the project shall be implemented here
 #TODO: Remove the following line
-V_EXITCODE=1;exit ${V_EXITCODE}
+V_EXITCODE=1
+
+exit ${V_EXITCODE}
+
 
