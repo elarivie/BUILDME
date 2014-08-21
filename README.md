@@ -71,11 +71,11 @@ with highly similar source code.
 Contribute
 ----
 You are the welcome to contribute (Welcome in the open source world):
-* Bug/Suggestion/Comment (Email me at <ericlariviere@hotmail.com>)
-* Other useful implementations in a not already implemented language (Fork and Pull).
+* Bug/Suggestion/Comment
+* Other useful template implementations in a not already implemented language (Fork and Pull).
 
 Contact
 ----
-* Project page 
+* Project: https://github.com/elarivie/build
 * Éric Larivière <ericlariviere@hotmail.com>
 
