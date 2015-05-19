@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-	This is a template script to build a project
+	This is a script to build the project
+	
+	it is using template_build_python3 v2
 
 	This script:
 		- Should be named "build"
@@ -32,7 +34,7 @@ def build(p_Src, p_Tmp, p_Out):
 ############################
 ############################ Copy this template build executable to your own project root folder
 ############################ Anything above this line is considered part of your project
-############################ Anything below this line is part of the project <https://github.com/elarivie/build> and is licensed under GPLv3
+############################ Anything below this line is part of the build project <https://github.com/elarivie/build> and is licensed under GPLv3
 ############################ Note: You don't have to edit anything below this line, if you have to, please fill an issue at https://github.com/elarivie/build
 ############################
 ########################################################
@@ -49,7 +51,8 @@ Exit code 0 if build is successfull
 	parser.add_argument('-s', '--source', help='source folder (Default: Current working directory)', action='store', default=os.getcwd())
 	parser.add_argument('-t', '--temp', help='temporary folder (Default: new temporary directory in the system temporary directory)', action='store', default=None)
 	parser.add_argument('-o', '--output', help='output folder, shall not already exist (Default: new temporary directory in TEMPFOLDER)', action='store', default=None)
-	parser.add_argument('-V', '--version', action='version', version='build 1.0')
+	parser.add_argument('-O', '--Output', help='output folder, shall already exist (Default: --output)', action='store', default=None)
+	parser.add_argument('-V', '--version', action='version', version='build 1.1')
 	c_Args = parser.parse_args(p_Args)
 	def _actualpath(p_Path):
 		return None if p_Path is None else os.path.normcase(os.path.realpath(os.path.normpath(p_Path)))
@@ -84,6 +87,9 @@ Exit code 0 if build is successfull
 	c_ActualPathSrc = _actualpath(c_Args.source)
 	c_ActualPathTmp = _actualpath(c_Args.temp)
 	c_ActualPathOut = _actualpath(c_Args.output)
+	if c_ActualPathOut is None:
+		c_ActualPathOut = _actualpath(c_Args.Output)
+		assert (c_ActualPathOut is None) or (os.path.isdir(c_ActualPathOut)), "The output folder has to be a folder"
 	import tempfile
 	v_BuildResult = None
 	with tempfile.TemporaryDirectory(suffix='', prefix='', dir=c_ActualPathTmp) as c_TmpFolder:
@@ -110,4 +116,3 @@ Exit code 0 if build is successfull
 if __name__ == '__main__':
 	import sys
 	sys.exit(main(sys.argv[1:]))
-

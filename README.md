@@ -8,7 +8,7 @@ process of a project new user/developer will be able to build a project
 very easily.  It also greatly simplify the management of multiple
 projects.
 
-The build interface consist in an executable file called "build" which
+The build interface consist of an executable file called "build" which
 is put at the root folder of projects.  It shall accept the command line
 parameters shown below (**nothing more, nothing less**) and comply with
 the behaviours which are also described in details below.
@@ -32,30 +32,40 @@ Command line parameter interface:
 ----
 
 ```
-usage: build [-h] [-s SOURCE] [-t TEMP] [-o OUTPUT] [-V]
+usage: build [-h] [-s SOURCE] [-t TEMP] [-o OUTPUT] [-O OUTPUT] [-V]
 
 Build the project
 
 optional arguments:
-  -h, --help            show this help message and exit
+  -h, --help
+                      show this help message and exit
   -s SOURCE, --source SOURCE
-                        source folder (Default: Current working directory)
-  -t TEMP, --temp TEMP  temporary folder (Default: new temporary directory in
-                        the system temporary directory)
+                      source folder (Default: Current working directory)
+  -t TEMP, --temp TEMP
+                      temporary folder (Default: new temporary directory
+                      in the system temporary directory)
   -o OUTPUT, --output OUTPUT
-                        output folder, shall not already exist (Default: new
-                        temporary directory in TEMP)
-  -V, --version         show program's version number and exit
+                      output folder, shall not already exist (Default:
+                      new temporary directory in TEMP)
+  -O OUTPUT, --Output OUTPUT
+                      output folder, shall already exist (Default: --output)
+  -V, --version
+                      show program's version number and exit
 
 Exit code 0 only if the build is successful
 ```
+
 Behaviour
 ----
+
 * Shall abort if invalid parameters are given
 * Should exit with an error if the given TEMP or OUTPUT folder is in the SOURCE folder
 * Should exit with an error if an external dependency is missing on the system.
-* Shall create the OUTPUT folder or exit with an error if it exists already
+* Shall exit with an error if -o and -O are given
+* With the option -o, Shall create the OUTPUT folder or exit with an error if it exists already
+* With the option -O, Shall exit with an error if the folder does not exist already
 * **Should build the project and put the result in OUTPUT**
+* Shall only copy or move data to the OUTPUT folder (any kind of processing shall be done in the TEMP folder)
 * Should exit with an error if the SOURCE folder content is modified
 * Should remove generated data in the TEMP folder before exiting
 
@@ -73,7 +83,8 @@ Contribute
 ----
 You are the welcome to contribute (Welcome in the open source world):
 * Bug/Suggestion/Comment
-* Other useful template implementations in a not already implemented language (Fork and Pull).
+* Other useful template implementations in a not already implemented
+language (Fork and Pull).
 
 Contact
 ----

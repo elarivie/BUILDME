@@ -1,5 +1,7 @@
 #!/bin/sh
-#	This is a template script to build a project
+#	This is a script to build the project
+#
+#	It is using template_build_dash v1
 #
 #	This script:
 #		- Should be named "build"
@@ -63,6 +65,18 @@ while [ "$#" -ne 0 ]; do
 			fi
 			C_OUT="${1}"
 			shift
+			mkdir "${C_OUT}"
+		;;
+		"-O"|"--Output")
+			shift
+			if [ "$#" -eq 0 ]; then
+				exit 1
+			fi
+			if [ ! -z "${C_OUT}" ]; then
+				exit 1
+			fi
+			C_OUT="${1}"
+			shift
 		;;
 		"-V"|"--version")
 			shift
@@ -104,7 +118,7 @@ fi
 ########################################################
 ############################
 ############################ Copy this template build executable to your own project root folder
-############################ Anything above this line is part of the project <https://github.com/elarivie/build> and is licensed under GPLv3
+############################ Anything above this line is part of the project build <https://github.com/elarivie/build> and is licensed under GPLv3
 ############################ Anything below this line is considered part of your project
 ############################ Note: You don't have to edit anything above this line, if you have to, please fill an issue at https://github.com/elarivie/build
 ############################
