@@ -4,11 +4,11 @@
 """
 	This is a script to build the project
 	
-	it is using template_build_python3 v2
+	It is using template_python3 v2
 
 	This script:
-		- Should be named "build"
-		- Should be present at the project root folder
+		- Should be named "BUILDME"
+		- Should be present in the project root folder
 		- Should be executable (chmod +x build)
 		- Should contains all the project build process steps implemented into the function build (see below)
 """
@@ -23,8 +23,16 @@ def build(p_Src, p_Tmp, p_Out):
 	"""
 	import os
 	import shutil
-	for c_CurrFile in ["template_build_dash", "template_build_python3"]:
-		shutil.copy(os.path.join(p_Src, "src", c_CurrFile), os.path.join(p_Out, c_CurrFile))
+	import filecmp
+	#Validate that the template entry point are the same than the ones at the root
+	
+	for c_CurrImplementation in [["python3", ["bat", "py"]],["dash", []]]:
+		os.mkdir(os.path.join(p_Out, "template_" + c_CurrImplementation[0]))
+		shutil.copy(os.path.join(p_Src, "src", "template_" + c_CurrImplementation[0], "BUILDME"), os.path.join(p_Out, "template_" + c_CurrImplementation[0]))
+		for c_CurrExt in c_CurrImplementation[1]:
+			if os.path.isfile(os.path.join(p_Src, "BUILDME." + c_CurrExt)):
+				assert filecmp.cmp(os.path.join(p_Src, "src", "template_" + c_CurrImplementation[0], "BUILDME." + c_CurrExt), os.path.join(p_Src, "BUILDME." + c_CurrExt), shallow=False), "BUILDME." + c_CurrExt
+			shutil.copy(os.path.join(p_Src, "src", "template_" + c_CurrImplementation[0], "BUILDME." + c_CurrExt), os.path.join(p_Out, "template_" + c_CurrImplementation[0]))
 	return 0
 
 ###Settings
@@ -119,9 +127,11 @@ Exit code 0 if build is successfull
 			pass
 		c_SrcHash = _processDirectoryHash(c_ActualPathSrc) if v_DoSrcHashValidation else 0
 		v_BuildResult = build(c_ActualPathSrc, tempfile.mkdtemp(suffix='', prefix='', dir=c_TmpFolder), c_ActualPathOut)
-	assert c_SrcHash == (_processDirectoryHash(c_ActualPathSrc) if v_DoSrcHashValidation else 0), "Source folder was modified by build process"
+	assert c_SrcHash == (_processDirectoryHash(c_ActualPathSrc) if v_DoSrcHashValidation else 0), "Source folder was modified by the build process"
 	return v_BuildResult
 
 if __name__ == '__main__':
 	import sys
+	sys.dont_write_bytecode = True
 	sys.exit(main(sys.argv[1:]))
+

@@ -4,11 +4,11 @@
 """
 	This is a script to build the project
 	
-	it is using template_build_python3 v2
+	It is using template_python3 v2
 
 	This script:
-		- Should be named "build"
-		- Should be present at the project root folder
+		- Should be named "BUILDME"
+		- Should be present in the project root folder
 		- Should be executable (chmod +x build)
 		- Should contains all the project build process steps implemented into the function build (see below)
 """
@@ -21,7 +21,7 @@ def build(p_Src, p_Tmp, p_Out):
 		@param p_Out A folder where the build result should be written to
 		@returns Exit code 0 on success or raise an Exception if something failed
 	"""
-	#TODO: The presence of required external dependency should be validated here.
+	#TODO: The presence of required external dependency should be validated here (within the build function).
 	#TODO: The build steps to build the project shall be implemented here (within the build function)
 
 	#TODO: Remove the following line
@@ -121,9 +121,11 @@ Exit code 0 if build is successfull
 			pass
 		c_SrcHash = _processDirectoryHash(c_ActualPathSrc) if v_DoSrcHashValidation else 0
 		v_BuildResult = build(c_ActualPathSrc, tempfile.mkdtemp(suffix='', prefix='', dir=c_TmpFolder), c_ActualPathOut)
-	assert c_SrcHash == (_processDirectoryHash(c_ActualPathSrc) if v_DoSrcHashValidation else 0), "Source folder was modified by build process"
+	assert c_SrcHash == (_processDirectoryHash(c_ActualPathSrc) if v_DoSrcHashValidation else 0), "Source folder was modified by the build process"
 	return v_BuildResult
 
 if __name__ == '__main__':
 	import sys
+	sys.dont_write_bytecode = True
 	sys.exit(main(sys.argv[1:]))
+

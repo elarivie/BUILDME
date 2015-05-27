@@ -5,7 +5,7 @@
 #
 #	This script:
 #		- Should be named "build"
-#		- Should be present at the project root folder
+#		- Should be in the project root folder
 #		- Should be executable (chmod +x build)
 #		- Should contains all the build process steps implemented at the end of the script
 

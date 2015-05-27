@@ -1,4 +1,4 @@
-build
+BUILDME
 ===========
 
 **Generic interface to project's build process.**
@@ -6,9 +6,9 @@ build
 With the availability of this simple entry point interface to the build
 process of a project new user/developer will be able to build a project
 very easily.  It also greatly simplify the management of multiple
-projects.
+projects with continuous integration tool for example.
 
-The build interface consist of an executable file called "build" which
+The build interface consist of an executable file called "BUILDME" which
 is put at the root folder of projects.  It shall accept the command line
 parameters shown below (**nothing more, nothing less**) and comply with
 the behaviours which are also described in details below.
@@ -16,23 +16,23 @@ the behaviours which are also described in details below.
 There are no restrictions on the entry point executable implementation.
 You may choose any already implemented template version available in the
 current project or implement your own.  Even if there are no
-implementations restrictions it is a good idea to select an interpreted
+implementation restriction it is a good idea to select an interpreted
 language since otherwise a separated project for the build executable
 would then be required.
 
 Using this simple entry point to the build process does not restrict the
-use of any build tools since the build steps that it contains may very
-well call build tools like ant, make, Maven, etc.  The project should
-aim to be free of any external dependencies but if it is not yet the
-case the build steps should validate the presence of all required
-external dependencies and abort the build with clear instruction about
-the missing ones on the system.
+use of any build tools or compiler since the build steps that it
+contains may very well call build tools like ant, javac, gcc, Grunt,
+make, Maven, etc.  The project should aim to be free of any external
+dependencies but if it is not yet the case the build steps should
+validate the presence of all required external dependencies and abort
+the build with clear instruction about the missing ones on the system.
 
 Command line parameter interface:
 ----
 
 ```
-usage: build [-h] [-s SOURCE] [-t TEMP] [-o OUTPUT] [-O OUTPUT] [-V]
+usage: BUILDME [-h] [-s SOURCE] [-t TEMP] [[-o OUTPUT]|[-O OUTPUT]] [-V]
 
 Build the project
 
@@ -78,6 +78,14 @@ This solution introduces the concept of **One project = One output**.
 If multiple outputs for a given project are possible, they should all be
 generated **or** the project should be split/fork in multiple projects
 with highly similar source code.
+
+As a convenience some BUILDME executable with extension may be present
+next to the main BUILDME file in a project repository.  Their function
+is to offer a file with an extension to support operating systems that
+requires one to identify the nature of the executable.  It is important
+to note that those files objective is only to forward the execution to
+the BUILDME file which have no extension and should not attempt to
+implement the project build process.
 
 Contribute
 ----
