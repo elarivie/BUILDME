@@ -27,6 +27,11 @@ def build(p_Src, p_Tmp, p_Out):
 		shutil.copy(os.path.join(p_Src, "src", c_CurrFile), os.path.join(p_Out, c_CurrFile))
 	return 0
 
+###Settings
+
+####Validate that the SRC folder is not altered by the build steps. (Default = True)
+#S_SrcHashValidation = False
+
 ########################################################
 ########################################################
 ############################
@@ -68,7 +73,7 @@ Exit code 0 if build is successfull
 			for c_Name in c_Files:
 				c_CheckSum.update(c_Name.encode('utf-8'))#Use the file name
 				c_CurrPath = os.path.join(c_Root, c_Name)
-				c_CheckSum.update(str(os.path.getsize(c_CurrPath)).encode('utf-8'))#Use the file size
+				#c_CheckSum.update(str(os.path.getsize(c_CurrPath)).encode('utf-8'))#Use the file size
 				with open(c_CurrPath, 'rb') as c_CurrentFile:
 					while True:
 						v_Buffer = c_CurrentFile.read(8192)
@@ -107,9 +112,14 @@ Exit code 0 if build is successfull
 		if v_NeedToCreateOut:
 			os.makedirs(c_ActualPathOut, exist_ok=False)
 		assert os.path.isdir(c_ActualPathOut), "The output folder has to be a folder"
-		c_SrcHash = _processDirectoryHash(c_ActualPathSrc)
+		v_DoSrcHashValidation = True
+		try:
+			v_DoSrcHashValidation = S_SrcHashValidation
+		except NameError:
+			pass
+		c_SrcHash = _processDirectoryHash(c_ActualPathSrc) if v_DoSrcHashValidation else 0
 		v_BuildResult = build(c_ActualPathSrc, tempfile.mkdtemp(suffix='', prefix='', dir=c_TmpFolder), c_ActualPathOut)
-	assert c_SrcHash == _processDirectoryHash(c_ActualPathSrc), "Source folder was modified by build process"
+	assert c_SrcHash == (_processDirectoryHash(c_ActualPathSrc) if v_DoSrcHashValidation else 0), "Source folder was modified by build process"
 	return v_BuildResult
 
 if __name__ == '__main__':
