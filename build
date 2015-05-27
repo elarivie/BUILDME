@@ -73,7 +73,7 @@ Exit code 0 if build is successfull
 					while True:
 						v_Buffer = c_CurrentFile.read(8192)
 						if len(v_Buffer) > 0:
-							c_CheckSum.update(v_Buffer)
+							c_CheckSum.update(v_Buffer)#Use the file content
 						else:
 							break
 			for c_Name in c_Dirs:
@@ -85,13 +85,14 @@ Exit code 0 if build is successfull
 	c_ActualPathSrc = _actualpath(c_Args.source)
 	c_ActualPathTmp = _actualpath(c_Args.temp)
 	c_ActualPathOut = _actualpath(c_Args.output)
+	v_NeedToCreateOut = True
 	if c_ActualPathOut is None:
 		c_ActualPathOut = _actualpath(c_Args.Output)
+		v_NeedToCreateOut = False
 		assert (c_ActualPathOut is None) or (os.path.isdir(c_ActualPathOut)), "The output folder has to be a folder"
 	import tempfile
 	v_BuildResult = None
 	with tempfile.TemporaryDirectory(suffix='', prefix='', dir=c_ActualPathTmp) as c_TmpFolder:
-		v_NeedToCreateOut = True
 		if c_ActualPathOut is None:
 			v_NeedToCreateOut = False
 			c_ActualPathOut = tempfile.mkdtemp(suffix='', prefix='', dir=c_TmpFolder)
@@ -99,10 +100,10 @@ Exit code 0 if build is successfull
 			c_ActualPathSrc = tempfile.mkdtemp(suffix='', prefix='', dir=c_TmpFolder)
 		assert os.path.isdir(c_ActualPathSrc), "The source folder has to be a folder"
 		assert (c_ActualPathTmp is None) or os.path.isdir(c_ActualPathTmp), "The temporary folder has to be a folder"
-		assert (c_ActualPathTmp is None) or not c_ActualPathTmp.startswith(c_ActualPathSrc), "The temporary folder cannot be within the source folder"
-		assert not c_ActualPathOut.startswith(c_ActualPathSrc), "The output folder cannot be within the source folder"
-		assert not c_ActualPathSrc.startswith(c_ActualPathOut), "The source folder cannot be within the output folder"
-		assert (c_ActualPathTmp is None) or not c_ActualPathTmp.startswith(c_ActualPathOut), "The temporary folder cannot be within the output folder"
+		assert (c_ActualPathTmp is None) or not c_ActualPathTmp.startswith(c_ActualPathSrc + os.sep), "The temporary folder cannot be within the source folder"
+		assert not c_ActualPathOut.startswith(c_ActualPathSrc + os.sep), "The output folder cannot be within the source folder"
+		assert not c_ActualPathSrc.startswith(c_ActualPathOut + os.sep), "The source folder cannot be within the output folder"
+		assert (c_ActualPathTmp is None) or not c_ActualPathTmp.startswith(c_ActualPathOut + os.sep), "The temporary folder cannot be within the output folder"
 		if v_NeedToCreateOut:
 			os.makedirs(c_ActualPathOut, exist_ok=False)
 		assert os.path.isdir(c_ActualPathOut), "The output folder has to be a folder"
