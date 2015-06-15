@@ -7,8 +7,9 @@
 #     Should be present in the project root folder
 
 def main(p_Args):
+	import os
 	import subprocess
-	c_Args = ["python3", "-B", "BUILDME"]
+	c_Args = ["python" if os.name == "nt" else "python3", "-B", "BUILDME"]
 	c_Args.extend(p_Args)
 	return subprocess.call(c_Args)
 

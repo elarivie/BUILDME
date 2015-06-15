@@ -1,12 +1,12 @@
 #!/bin/sh
 #	This is a script to build the project
 #
-#	It is using template_build_dash v1
+#	It is using template_BUILDME_dash v1
 #
 #	This script:
-#		- Should be named "build"
+#		- Should be named "BUILDME"
 #		- Should be in the project root folder
-#		- Should be executable (chmod +x build)
+#		- Should be executable (chmod +x BUILDME)
 #		- Should contains all the build process steps implemented at the end of the script
 
 C_SRC=""
@@ -16,7 +16,7 @@ while [ "$#" -ne 0 ]; do
 	case "${1}" in
     	"-h"|"--help")
 			shift
-    	    echo "usage: build [-h] [-s SOURCE] [-t TEMP] [-o OUTPUT] [-V]"
+    	    echo "usage: BUILDME [-h] [-s SOURCE] [-t TEMP] [-o OUTPUT] [-V]"
     	    echo ""
     	    echo "Build the project"
     	    echo ""
@@ -118,9 +118,9 @@ fi
 ########################################################
 ############################
 ############################ Copy this template build executable to your own project root folder
-############################ Anything above this line is part of the project build <https://github.com/elarivie/build> and is licensed under GPLv3
+############################ Anything above this line is part of the project build <https://github.com/elarivie/BUILDME> and is licensed under GPLv3
 ############################ Anything below this line is considered part of your project
-############################ Note: You don't have to edit anything above this line, if you have to, please fill an issue at https://github.com/elarivie/build
+############################ Note: You don't have to edit anything above this line, if you have to, please fill an issue at https://github.com/elarivie/BUILDME
 ############################
 ########################################################
 ########################################################
