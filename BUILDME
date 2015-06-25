@@ -24,20 +24,25 @@ def build(p_Src, p_Tmp, p_Out):
 	import os
 	import shutil
 	import filecmp
-	#Validate that the template entry point are the same than the ones at the root
-	
-	for c_CurrImplementation in [["python3", ["bat", "py"]],["dash", []]]:
-		os.mkdir(os.path.join(p_Out, "template_" + c_CurrImplementation[0]))
-		shutil.copy(os.path.join(p_Src, "src", "template_" + c_CurrImplementation[0], "BUILDME"), os.path.join(p_Out, "template_" + c_CurrImplementation[0]))
-		for c_CurrExt in c_CurrImplementation[1]:
-			if os.path.isfile(os.path.join(p_Src, "BUILDME." + c_CurrExt)):
-				assert filecmp.cmp(os.path.join(p_Src, "src", "template_" + c_CurrImplementation[0], "BUILDME." + c_CurrExt), os.path.join(p_Src, "BUILDME." + c_CurrExt), shallow=False), "BUILDME." + c_CurrExt
-			shutil.copy(os.path.join(p_Src, "src", "template_" + c_CurrImplementation[0], "BUILDME." + c_CurrExt), os.path.join(p_Out, "template_" + c_CurrImplementation[0]))
+	#Validate that the templates entry point are the same than the ones at the root
+	assert filecmp.cmp(os.path.join(p_Src, "src", "template_gitlab", ".gitlab-ci.yml"), os.path.join(p_Src, ".gitlab-ci.yml"))
+	assert filecmp.cmp(os.path.join(p_Src, "src", "template_python3", "BUILDME.py"), os.path.join(p_Src, "BUILDME.py"))
+
+	#Copy to output
+	os.mkdir(os.path.join(p_Out, "template_dash"))
+	shutil.copy(os.path.join(p_Src, "src", "template_dash", "BUILDME"), os.path.join(p_Out, "template_dash"))
+	os.mkdir(os.path.join(p_Out, "template_gitlab"))
+	shutil.copy(os.path.join(p_Src, "src", "template_gitlab", ".gitlab-ci.yml"), os.path.join(p_Out, "template_gitlab"))
+	os.mkdir(os.path.join(p_Out, "template_python3"))
+	shutil.copy(os.path.join(p_Src, "src", "template_python3", "BUILDME"), os.path.join(p_Out, "template_python3"))
+	shutil.copy(os.path.join(p_Src, "src", "template_python3", "BUILDME.py"), os.path.join(p_Out, "template_python3"))
+	shutil.copy(os.path.join(p_Src, "src", "template_python3", "BUILDME.bat"), os.path.join(p_Out, "template_python3"))
+
 	return 0
 
 ###Settings
 
-####Validate that the SRC folder is not altered by the build steps. (Default = True)
+####Validate that the SRC folder is not altered while the build steps are in progress. (Default = True)
 #S_SrcHashValidation = False
 
 ########################################################
@@ -45,7 +50,7 @@ def build(p_Src, p_Tmp, p_Out):
 ############################
 ############################ Copy this template build executable to your own project root folder
 ############################ Anything above this line is considered part of your project
-############################ Anything below this line is part of the build project <https://github.com/elarivie/BUILDME> and is licensed under GPLv3
+############################ Anything below this line is part of the BUILDME project <https://github.com/elarivie/BUILDME> and is licensed under GPLv3
 ############################ Note: You don't have to edit anything below this line, if you have to, please fill an issue at https://github.com/elarivie/BUILDME
 ############################
 ########################################################
@@ -151,7 +156,13 @@ Exit code 0 if build is successfull
 			# Known possible cause:
 			# - On OS Windows if the Tmp folder contains element with long file path
 			# Will now attempt other strategies to to clean up as much as possible
-			#Strategy #1 : Since the temp folder destiny is to be deleted we can alter its content, therefore we now walk the directory by path and remove each file and folder specifically else rename them with a shorter name, the objective is to keep only the problematic files/folder and to reduce as much as possible the maximum file path length
+			# Since the temp folder destiny is to be deleted we can alter its content
+			#  Walk multiple time the temp directory:
+			#  - Remove each file and folder specifically 
+			#  - If delete is not possible, rename them with a shorter name
+			#  The objective is to:
+			#  - Reduce as much as possible the file path length
+			#  - Keep only the problematic files/folder
 			try:
 				v_SawImprovement = True
 				while v_SawImprovement:

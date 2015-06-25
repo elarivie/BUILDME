@@ -1,25 +1,32 @@
 BUILDME
 ===========
 
-**Generic and simple interface to project's build process.**
+**A generic and KISS interface to any project's build process.**
 
 The main benefits that BUILDME brings to a project:
-* New user/developer are able to build the project easily.
-* Easy integration with any Continuous Integration tool.
+----
+
+* **New users** and active developers can easily and consistently build
+ the project.
+* Easy integration with Continuous Integration (CI) tools like GitlabCi,
+ Jenkins or any other.
 * Greatly simplify the management of multiple projects.
 * The build process is auto documented by the BUILDME implementation.
-* Since the BUILDME is evolving with the project the build process may
-  change anytime without any knowledge transfer issue or out of date
-  build process.
+* Since the BUILDME is evolving with the project (even if branched or
+ forked)
+ the build process may change anytime without any knowledge transfer
+issue or out of date build process.
 * Any missing external dependency are quickly reported to the user.
 * Clean build free of any dirty state.
 * Remove any possible human error from the build proces.
 * Reproducible build.
+* No need to learn a new programming language/syntax.
+* Same build methodology if done locally or by a CI tool.
 
-The BUILDME interface follows the KISS principle and consist of an
-executable file called "BUILDME" which is put at the root folder of
-projects.  It shall accept the command line parameters and comply with
-the requirements which are described in details below.
+The BUILDME interface consist of a single executable file called
+"BUILDME" which is put at the root folder of projects.  It shall accept
+the command line parameters and comply with the requirements which are
+described in details below.
 
 There are absolutely no restriction about the BUILDME executable
 implementation.  You may therefore choose any programming language.
@@ -29,7 +36,7 @@ Python 3).  Even if there are no implementation restriction it is a
 good idea to select an interpreted programming language since otherwise
 a separated project to compile the BUILDME executable would then be
 required.  Also interpreted language usually have the benefits of being
-portable.
+portable and human readable.
 
 It is important to note that using this simple entry point to the build
 process does not restrict the use of any build tools or compiler since
@@ -45,9 +52,6 @@ missing ones on the build system.
 Important Note
 ----
 
-The behaviour of this solution does not allow partial build, they should
-anyway be avoided to prevent potential invalid build output.
-
 This solution introduces the concept of **One project = One output**.
 If multiple outputs for a given project are possible, they should all be
 generated **or** the project should be split/fork in multiple projects
@@ -60,7 +64,8 @@ constraints may be for example:
 * OS requiring file extension to identify the executable nature
 (```Windows```).
 
-* IDE which have their own internal build methodology (```Eclipse```).
+* IDE which have their own internal build methodology (pretty much all
+of them).
 
 * Continuous integration tool which require a special build file.
 (```GitLabCI```).
@@ -70,12 +75,18 @@ forward and delegate the build request to the BUILDME executable file
 and shall therefore not implement any releasable build step.
 
 **As a convenience** to accomodate or ease development workflows,
-nothing prevent to have other methodologies to build or partially build
-a project, **but** in the end only the output of the BUILDME shall be
-used for final release.
+nothing prevent to have alternative methodologies to build or partially
+build a project, **but** in the end only the output of the BUILDME shall
+be used for final release.
 
 Command line parameter interface:
 ----
+The interface is shown below, you may notice that all the parameters are
+optional.  Simply calling the BUILDME executable with no parameter
+allows to validate build success without keeping the output.  Which is
+usefull on continuous integration tools or to locally validate the build
+successful status.
+
 
 ```
 usage: BUILDME [-h] [-s SOURCE] [-t TEMP] [[-o OUTPUT]|[-O OUTPUT]] [-V]
@@ -102,11 +113,13 @@ Exit code 0 only if the build is successful
 Requirements
 ----
 
-The main idea behind BUILDME build process is is that source folder is
-left untouched while build steps occurs in a temp folder and finally the
-end result is put in an output folder.  This build behaviour is far from
-being revolutionary but what BUILDME brings is a simple and standard
-interface to the build process.
+### The main idea behind BUILDME build process is that:
+* Source folder is left untouched
+* Build steps occurs in a temp folder
+* The end result is put in an output folder.
+
+This build behaviour is far from being revolutionary but what BUILDME
+brings is a simple and standard interface to this build process.
 
 Find below the exhaustive and complete list of requirements which
 defines every aspect of BUILDME.
@@ -139,7 +152,7 @@ defines every aspect of BUILDME.
 * REQ00019 - Shall never skip the build step of cleaning the TEMP folder.
 * REQ0001A - Shall not write any data outside of BUILDTEMP and BUILDOUTPUT folder.
 * WSH00000 - Should abort build steps if the SOURCE folder is altered while the build steps are not complete.
-* WSH00001 - Shall abort build steps if an external dependency is missing on the system.
+* WSH00001 - Should abort build steps if an external dependency is missing on the system.
 * WSH00002 - Should provide clear instruction in the output or error stream about any missing dependencies on the system.
 * WSH00003 - Should be implemented in an interpreted programming language.
 * WSH00004 - Should be portable accross multiple OS.
