@@ -4,8 +4,8 @@ BUILDME
 **Generic and simple interface to project's build process.**
 
 The main benefits that BUILDME brings to a project:
-* New user/developer are going to be able to build the project easily.
-* Easy integration with Continuous Integration tool.
+* New user/developer are able to build the project easily.
+* Easy integration with any Continuous Integration tool.
 * Greatly simplify the management of multiple projects.
 * The build process is auto documented by the BUILDME implementation.
 * Since the BUILDME is evolving with the project the build process may
@@ -37,10 +37,10 @@ the build steps that it contains may very well call build tools like
 ant, javac, gcc, grunt, make, maven, etc.
 
 Projects should always aim to be free of any external (outside of the
-source) dependencies but if it is not yet the case the BUILDME steps
-should validate the presence of all required external dependencies and
-abort the build with clear instruction about the missing ones on the
-build system.
+source) dependencies but if it is not yet the case (it rarely is) the
+BUILDME steps should validate the presence of all required external
+dependencies and abort the build with clear instruction about the
+missing ones on the build system.
 
 Important Note
 ----
@@ -53,13 +53,26 @@ If multiple outputs for a given project are possible, they should all be
 generated **or** the project should be split/fork in multiple projects
 with highly similar source code.
 
-As a convenience some BUILDME facilitators executable may be present
-next to the main BUILDME file in a project root.  Their function
-is to offer a file with an extension to support operating systems that
-requires one to identify the nature of the executable.  It is important
-to note that those facilitators purpose is only to forward the execution
-to the BUILDME file which have no extension and shall therefore not
-implement any build step.
+**As a convenience** to accomodate environment constraints some
+facilitator files may be present in a project.  Some environment
+constraints may be for example:
+
+* OS requiring file extension to identify the executable nature
+(```Windows```).
+
+* IDE which have their own internal build methodology (```Eclipse```).
+
+* Continuous integration tool which require a special build file.
+(```GitLabCI```).
+
+It is important to note that facilitator purpose is only to
+forward and delegate the build request to the BUILDME executable file
+and shall therefore not implement any releasable build step.
+
+**As a convenience** to accomodate or ease development workflows,
+nothing prevent to have other methodologies to build or partially build
+a project, **but** in the end only the output of the BUILDME shall be
+used for final release.
 
 Command line parameter interface:
 ----
