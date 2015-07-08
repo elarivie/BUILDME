@@ -122,7 +122,7 @@ This build behaviour is far from being revolutionary but what BUILDME
 brings is a simple and standard interface to this build process.
 
 Find below the exhaustive and complete list of requirements which
-defines every aspect of BUILDME.
+define every aspects of BUILDME.
 
 * REQ00000 - Shall be an executable file called "BUILDME" (No extension) at the root of projects.
 * REQ00001 - Shall exit with exit code "0" only if the build steps are all successful including the temporaty files cleaning.
@@ -160,6 +160,14 @@ defines every aspect of BUILDME.
 * OPT00001 - May create, read, update, **process**, delete data in the BUILDTEMP folder.
 * OPT00002 - May move or copy data to BUILDOUTPUT.
 * OPT00003 - May write to the output and error stream.
+
+Hint
+----
+When building on Ubuntu it is possible to build from RAM by using the **/run** folder as the temporary folder
+
+```bash
+./BUILDME -t /run/user/$UID/
+```
 
 Contribute
 ----

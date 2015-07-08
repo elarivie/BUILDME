@@ -9,7 +9,8 @@
 def main(p_Args):
 	import os
 	import subprocess
-	c_Args = ["python" if os.name == "nt" else "python3", "-B", "BUILDME"]
+	import sys
+	c_Args = [sys.executable, "-B", "BUILDME"]
 	c_Args.extend(p_Args)
 	return subprocess.call(c_Args)
 
