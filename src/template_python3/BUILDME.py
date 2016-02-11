@@ -7,7 +7,6 @@
 #     Should be present in the project root folder
 
 def main(p_Args):
-	import os
 	import subprocess
 	import sys
 	c_Args = [sys.executable, "-B", "BUILDME"]
