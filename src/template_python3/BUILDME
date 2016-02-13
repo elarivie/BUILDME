@@ -99,7 +99,6 @@ Exit code 0 if build is successfull
 				c_ActualPathTmp = c_ActualPathTmpRAM
 		except AttributeError:
 			pass#os.getuid() is only available on Unix (it is the only os which might have a ram temp folder anyway)
-	print(c_ActualPathTmp)
 	c_ActualPathOut = _actualpath(c_Args.output)
 	v_NeedToCreateOut = True
 	if c_ActualPathOut is None:
