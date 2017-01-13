@@ -6,7 +6,10 @@
 #     Should be named "BUILDME.py"
 #     Should be present in the project root folder
 
-def main(p_Args):
+from typing import Sequence
+
+def main(p_Args: Sequence[str]) -> int:
+	"""Main."""
 	import subprocess
 	import sys
 	c_Args = [sys.executable, "-B", "BUILDME"]
@@ -17,4 +20,3 @@ if __name__ == '__main__':
 	import sys
 	sys.dont_write_bytecode = True
 	sys.exit(main(sys.argv[1:]))
-
