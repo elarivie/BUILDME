@@ -4,7 +4,7 @@
 """
 This is a script to build the project.
 
-It is using template_BUILDME_python3 v5.
+It is using template_BUILDME_python3 v6.
 
 This script:
 	- Should be named "BUILDME"
@@ -16,34 +16,33 @@ This script:
 from typing import Sequence
 from typing import Optional
 
-def BUILDME(p_Src: str, p_Tmp: str, p_Out: str) -> int:
+def BUILDME(s: str, t: str, o: str) -> int:
 	"""
 	Build the project.
 
-	@param p_Src The project root folder, the build steps shall only access this folder in read only mode
-	@param p_Tmp A folder where the build steps are free to write temporary file/folder
-	@param p_Out A folder where the build result should be written to
+	@param s The project root folder, the build steps shall only access this folder in read only mode
+	@param t A folder where the build steps are free to write temporary file/folder
+	@param o A folder where the build result should be written to
 	@returns Exit code 0 on success or raise an Exception if something failed
 	"""
 	import os
 	import shutil
 	import filecmp
 	#Validate that the templates entry point are the same than the ones at the root
-	assert filecmp.cmp(os.path.join(p_Src, "src", "template_gitlab", ".gitlab-ci.yml"), os.path.join(p_Src, ".gitlab-ci.yml"))
-	assert filecmp.cmp(os.path.join(p_Src, "src", "template_travisci", ".travis.yml"), os.path.join(p_Src, ".travis.yml"))
-	assert filecmp.cmp(os.path.join(p_Src, "src", "template_python3", "BUILDME.py"), os.path.join(p_Src, "BUILDME.py"))
+	assert filecmp.cmp(os.path.join(s, "src", "template_gitlab", ".gitlab-ci.yml"), os.path.join(s, ".gitlab-ci.yml"))
+	assert filecmp.cmp(os.path.join(s, "src", "template_travisci", ".travis.yml"), os.path.join(s, ".travis.yml"))
+	assert filecmp.cmp(os.path.join(s, "src", "template_python3", "BUILDME.py"), os.path.join(s, "BUILDME.py"))
 
 	#Copy to output
-	os.mkdir(os.path.join(p_Out, "template_dash"))
-	shutil.copy(os.path.join(p_Src, "src", "template_dash", "BUILDME"), os.path.join(p_Out, "template_dash"))
-	os.mkdir(os.path.join(p_Out, "template_gitlab"))
-	shutil.copy(os.path.join(p_Src, "src", "template_gitlab", ".gitlab-ci.yml"), os.path.join(p_Out, "template_gitlab"))
-	os.mkdir(os.path.join(p_Out, "template_travisci"))
-	shutil.copy(os.path.join(p_Src, "src", "template_travisci", ".travis.yml"), os.path.join(p_Out, "template_travisci"))
-	os.mkdir(os.path.join(p_Out, "template_python3"))
-	shutil.copy(os.path.join(p_Src, "src", "template_python3", "BUILDME"), os.path.join(p_Out, "template_python3"))
-	shutil.copy(os.path.join(p_Src, "src", "template_python3", "BUILDME.py"), os.path.join(p_Out, "template_python3"))
-	shutil.copy(os.path.join(p_Src, "src", "template_python3", "BUILDME.bat"), os.path.join(p_Out, "template_python3"))
+	for currOutput in [
+			["template_dash", ["BUILDME"]],
+			["template_python3", ["BUILDME", "BUILDME.bat", "BUILDME.py"]],
+			["template_gitlab", [".gitlab-ci.yml"]],
+			["template_travisci", [".travis.yml"]]
+		]:
+		os.mkdir(os.path.join(o, currOutput[0]))
+		for currFile in currOutput[1]:
+			shutil.copy(os.path.join(s, "src", currOutput[0], currFile), os.path.join(o, currOutput[0]))
 
 	return 0
 

@@ -22,18 +22,18 @@ while [ "$#" -ne 0 ]; do
     	    echo ""
     	    echo "optional arguments:"
     	    echo "  -h, --help            show this help message and exit"
-    	    echo "  -s SOURCE, --source SOURCE"
+    	    echo "  -s SOURCE"
     	    echo "                        source folder (Default: Current working directory)"
-    	    echo "  -t TEMP, --temp TEMP  temporary folder (Default: new temporary directory in"
+    	    echo "  -t TEMP               temporary folder (Default: new temporary directory in"
     	    echo "                        the system temporary directory)"
-    	    echo "  -o OUTPUT, --output OUTPUT"
-    	    echo "                        output folder, shall not already exist (Default: new"
+    	    echo "  -o OUTPUT"
+    	    echo "                        output folder, shall already exist (Default: new"
     	    echo "                        temporary directory in TEMPFOLDER)"
     	    echo "  -V, --version         show program's version number and exit"
     	    echo ""
     	    echo "Exit code 0 if build is successfull"
     	;;
-		"-s"|"--source")
+		"-s")
 			shift
 			if [ "$#" -eq 0 ]; then
 				exit 1
@@ -44,7 +44,7 @@ while [ "$#" -ne 0 ]; do
 			C_SRC="${1}"
 			shift
 		;;
-		"-t"|"--temp")
+		"-t")
 			shift
 			if [ "$#" -eq 0 ]; then
 				exit 1
@@ -55,19 +55,7 @@ while [ "$#" -ne 0 ]; do
 			C_TMP="${1}"
 			shift
 		;;
-		"-o"|"--output")
-			shift
-			if [ "$#" -eq 0 ]; then
-				exit 1
-			fi
-			if [ ! -z "${C_OUT}" ]; then
-				exit 1
-			fi
-			C_OUT="${1}"
-			shift
-			mkdir "${C_OUT}"
-		;;
-		"-O"|"--Output")
+		"-o")
 			shift
 			if [ "$#" -eq 0 ]; then
 				exit 1
@@ -80,7 +68,7 @@ while [ "$#" -ne 0 ]; do
 		;;
 		"-V"|"--version")
 			shift
-			echo "build 1.0"
+			echo "BUILDME 2.0.0"
 			exit 0
 		;;
 		*)
@@ -90,18 +78,24 @@ while [ "$#" -ne 0 ]; do
 done
 V_EXITCODE=0
 C_OLDTMPDIR="${TMPDIR}"
+
+if [ -z "${C_TMP}" ]; then
+	XUID=$(id -u)
+	if [ -d "/var/run/user/${XUID}/" ]; then
+		C_TMP="/var/run/user/${XUID}/"
+	fi
+fi
+
 export TMPDIR="${C_TMP}"
-C_ACTUALTMP=`mktemp -d`
+C_ACTUALTMP=$(mktemp -d)
 export TMPDIR="${C_ACTUALTMP}"
 trap 'rm -rf "${C_ACTUALTMP}"; exit ${V_EXITCODE}' 0 1 2 3 15
 if [ -z "${C_SRC}" ]; then
-	C_SRC=`mktemp -d`
+	C_SRC=$(pwd)
 fi
-C_TMP=`mktemp -d`
+C_TMP=$(mktemp -d)
 if [ -z "${C_OUT}" ]; then
-	C_OUT=`mktemp -d`
-else
-	mkdir "${C_OUT}"
+	C_OUT=$(mktemp -d)
 fi
 export TMPDIR="${C_OLDTMPDIR}"
 if [ ! -d "${C_SRC}" ]; then
@@ -131,11 +125,8 @@ fi
 # C_OUT -- Contains the output path directory
 # V_ExitCode 0 on success
 
-#TODO: The presence of required external dependency should be validated here.
+V_EXITCODE=0
+
 #TODO: The build steps to build the project shall be implemented here
-#TODO: Remove the following line
-V_EXITCODE=1
 
 exit ${V_EXITCODE}
-
-

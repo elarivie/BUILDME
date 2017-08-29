@@ -31,7 +31,7 @@ BUILDME:
 AUTHORS:
 	cd ${srcdir}
 	${ECHO} "Authors\n=======\nWe'd like to thank the following people for their contributions.\n\n" > ${srcdir}/AUTHORS.md
-	${GIT} log --raw | ${GREP} "^Author: " | ${SORT} | ${UNIQ} | ${CUT} -d ' ' -f2- | ${SED} 's/^/- /' >> ${srcdir}/AUTHORS.md
+	${GIT} log --raw | ${GREP} "^Author: " | ${GREP} -v ".noreply.github" | ${SORT} | ${UNIQ} | ${CUT} -d ' ' -f2- | ${SED} 's/^/- /' >> ${srcdir}/AUTHORS.md
 	${GIT} add AUTHORS.md
 
 HEARTBEAT:
