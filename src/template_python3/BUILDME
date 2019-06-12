@@ -4,7 +4,7 @@
 """
 This is a script to build the project.
 
-It is using template_BUILDME_python3 v6.
+It is using template_BUILDME_python3 v7.
 
 This script:
 	- Should be named "BUILDME"
@@ -16,6 +16,9 @@ This script:
 from typing import Sequence
 from typing import Optional
 
+S_USE_RAM_TEMP_FOLDER: bool = True
+
+
 def BUILDME(s: str, t: str, o: str) -> int:
 	"""
 	Build the project.
@@ -25,7 +28,7 @@ def BUILDME(s: str, t: str, o: str) -> int:
 	@param o A folder where the build result should be written to
 	@returns Exit code 0 on success or raise an Exception if something failed
 	"""
-	#TODO: The build steps to build the project shall be implemented here (within the BUILDME function)
+	# TODO: The build steps to build the project shall be implemented here (within the BUILDME function)
 	return 0
 
 ########################################################
@@ -38,12 +41,13 @@ def BUILDME(s: str, t: str, o: str) -> int:
 ############################
 ########################################################
 ########################################################
+
+
 def main(p_Args: Sequence[str]) -> int:
 	"""Main."""
 	import argparse
 	parser = argparse.ArgumentParser(
-		description="Build the project"
-		, epilog="""
+		description="Build the project", epilog="""
 Exit code 0 if build is successfull
 """
 	)
@@ -53,6 +57,7 @@ Exit code 0 if build is successfull
 	parser.add_argument("-o", help="output folder, shall not already exist (Default: new temporary directory in TEMPFOLDER)", action="store", default=None)
 	parser.add_argument("-V", "--version", action="version", version="BUILDME 2.0.0")
 	c_Args = parser.parse_args(p_Args)
+
 	def _actualpath(p_Path: Optional[str]) -> Optional[str]:
 		return None if p_Path is None else os.path.normcase(os.path.realpath(os.path.normpath(p_Path)))
 
@@ -60,12 +65,14 @@ Exit code 0 if build is successfull
 
 	if c_path[1] is None:
 		try:
-			#Use RAM temp folder if available
+			# Use RAM temp folder if available.
 			c_path[1] = os.path.abspath(os.path.join(os.sep, "run", "user", str(os.getuid())))
-			if not os.path.isdir(c_path[1]):
+			assert c_path[1] is not None
+			if (not S_USE_RAM_TEMP_FOLDER) or (not os.path.isdir(c_path[1])):
+				# Do not use RAM temp folder.
 				c_path[1] = None
 		except AttributeError:
-			pass#os.getuid() is only available on Unix (it is the only os which might have a ram temp folder anyway)
+			pass  # os.getuid() is only available on Unix (it is the only os which might have a ram temp folder anyway)
 	v_BuildResult = None
 	c_OrigCWD = os.getcwd()
 	v_TmpPath = None
@@ -74,27 +81,31 @@ Exit code 0 if build is successfull
 		import tempfile
 		with tempfile.TemporaryDirectory(suffix="", prefix="", dir=c_path[1]) as c_TmpFolder:
 			v_TmpPath = _actualpath(c_TmpFolder)
+			assert v_TmpPath is not None
 			try:
 				c_path[1] = None
 				for i in [0, 1, 2]:
 					if c_path[i] is None:
 						c_path[i] = _actualpath(tempfile.mkdtemp(suffix="", prefix="", dir=v_TmpPath))
 
-				os.chdir(c_path[1])#Make sure that the current working directory is the Temp folder before doing the build steps
+				assert c_path[1] is not None
+				os.chdir(c_path[1])  # Make sure that the current working directory is the Temp folder before doing the build steps
+				assert None not in c_path
 				v_BuildResult = BUILDME(*c_path)
-				#From this point, the only thing left to do is to delete the temp folder
+				# From this point, the only thing left to do is to delete the temp folder
 				v_BuildError = False
 			finally:
-				if _actualpath(os.getcwd()).startswith(v_TmpPath + os.sep):
-					os.chdir(c_OrigCWD)#Get out of the temp folder since it is about to be deleted
-	except Exception:
+				if str(_actualpath(os.getcwd())).startswith(v_TmpPath + os.sep):
+					os.chdir(c_OrigCWD)  # Get out of the temp folder since it is about to be deleted
+	except BaseException:
+		assert v_TmpPath is not None
 		if v_BuildError:
 			raise
 		else:
-			pass#Problem cleaning temp folder... will be handled in the finally block
+			pass  # Problem cleaning temp folder... will be handled in the finally block
 	finally:
 		if v_TmpPath is not None and os.path.isdir(v_TmpPath):
-			#Failed to remove temp folder
+			# Failed to remove temp folder
 			# Known possible cause:
 			# - On OS Windows if the Tmp folder contains element with long file path
 			# Will now attempt other strategies to to clean up as much as possible
@@ -114,41 +125,42 @@ Exit code 0 if build is successfull
 							try:
 								os.unlink(os.path.join(c_Root, c_Name))
 								v_SawImprovement = True
-							except Exception:
+							except BaseException:
 								try:
-									os.replace(os.path.join(c_Root, c_Name), os.path.join(c_Root, "A"))#Rename to a single character name
+									os.replace(os.path.join(c_Root, c_Name), os.path.join(c_Root, "A"))  # Rename to a single character name
 									v_SawImprovement = True
-								except Exception:
-									pass#Will retry later
+								except BaseException:
+									pass  # Will retry later
 						for c_Name in c_Dirs:
 							try:
 								os.rmdir(os.path.join(c_Root, c_Name))
 								v_SawImprovement = True
-							except Exception:
+							except BaseException:
 								try:
-									os.replace(os.path.join(c_Root, c_Name), os.path.join(c_Root, "A"))#Rename to a single character name
+									os.replace(os.path.join(c_Root, c_Name), os.path.join(c_Root, "A"))  # Rename to a single character name
 									v_SawImprovement = True
-								except Exception:
-									pass#Will retry later
-				os.rmdir(v_TmpPath)#Give it a try now that the content might have been deleted
-			except Exception:
-				pass#This is not a reason to fail the build yet...
+								except BaseException:
+									pass  # Will retry later
+				os.rmdir(v_TmpPath)  # Give it a try now that the content might have been deleted
+			except BaseException:
+				pass  # This is not a reason to fail the build yet...
 			if os.path.exists(v_TmpPath):
-				#Strangely the temp folder is still present...
-				#No known reason to reach this area but will try other strategies anyway
+				# Strangely the temp folder is still present...
+				# No known reason to reach this area but will try other strategies anyway
 				import shutil
 				try:
-					shutil.rmtree(v_TmpPath)#Try a deep delete of the temp folder.
-				except Exception:
-					pass#This is not a reason to fail the build yet...
+					shutil.rmtree(v_TmpPath)  # Try a deep delete of the temp folder.
+				except BaseException:
+					pass  # This is not a reason to fail the build yet...
 				if os.path.exists(v_TmpPath):
 					import time
-					time.sleep(5)#In last resort give five seconds to other processes and the OS to breath in case they need to cleanly release their handle on the temp folder
-					shutil.rmtree(v_TmpPath)#Last chance to delete temp, if it does not work, it will throw an exception to the user... we did our best.
+					time.sleep(5)  # In last resort give five seconds to other processes and the OS to breath in case they need to cleanly release their handle on the temp folder
+					shutil.rmtree(v_TmpPath)  # Last chance to delete temp, if it does not work, it will throw an exception to the user... we did our best.
 	assert not os.path.exists(v_TmpPath), "Temp folder could not be cleaned: " + str(v_TmpPath)
-	return v_BuildResult
+	return -1 if v_BuildResult is None else v_BuildResult
 
-if "__main__" == __name__ :
+
+if "__main__" == __name__:
 	import sys
 	sys.dont_write_bytecode = True
 	sys.exit(main(sys.argv[1:]))

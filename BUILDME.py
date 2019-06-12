@@ -8,15 +8,17 @@
 
 from typing import Sequence
 
-def main(p_Args: Sequence[str]) -> int:
+import subprocess
+import sys
+
+
+def main(p_args: Sequence[str]) -> int:
 	"""Main."""
-	import subprocess
-	import sys
-	c_Args = [sys.executable, "-B", "BUILDME"]
-	c_Args.extend(p_Args)
-	return subprocess.call(c_Args)
+	c_args = [sys.executable, "-B", "BUILDME"]
+	c_args.extend(p_args)
+	return subprocess.call(c_args)
+
 
 if __name__ == '__main__':
-	import sys
 	sys.dont_write_bytecode = True
 	sys.exit(main(sys.argv[1:]))
