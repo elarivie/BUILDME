@@ -14,25 +14,25 @@ C_TMP=""
 C_OUT=""
 while [ "$#" -ne 0 ]; do
 	case "${1}" in
-    	"-h"|"--help")
+		"-h"|"--help")
 			shift
-    	    echo "usage: BUILDME [-h] [-s SOURCE] [-t TEMP] [-o OUTPUT] [-V]"
-    	    echo ""
-    	    echo "Build the project"
-    	    echo ""
-    	    echo "optional arguments:"
-    	    echo "  -h, --help            show this help message and exit"
-    	    echo "  -s SOURCE"
-    	    echo "                        source folder (Default: Current working directory)"
-    	    echo "  -t TEMP               temporary folder (Default: new temporary directory in"
-    	    echo "                        the system temporary directory)"
-    	    echo "  -o OUTPUT"
-    	    echo "                        output folder, shall already exist (Default: new"
-    	    echo "                        temporary directory in TEMPFOLDER)"
-    	    echo "  -V, --version         show program's version number and exit"
-    	    echo ""
-    	    echo "Exit code 0 if build is successfull"
-    	;;
+					echo "usage: BUILDME [-h] [-s SOURCE] [-t TEMP] [-o OUTPUT] [-V]"
+					echo ""
+					echo "Build the project"
+					echo ""
+					echo "optional arguments:"
+					echo "  -h, --help            show this help message and exit"
+					echo "  -s SOURCE"
+					echo "                        source folder (Default: Current working directory)"
+					echo "  -t TEMP               temporary folder (Default: new temporary directory in"
+					echo "                        the system temporary directory)"
+					echo "  -o OUTPUT"
+					echo "                        output folder, shall not already exist (Default: new"
+					echo "                        temporary directory in TEMPFOLDER)"
+					echo "  -V, --version         show program's version number and exit"
+					echo ""
+					echo "Exit code 0 if build is successfull"
+			;;
 		"-s")
 			shift
 			if [ "$#" -eq 0 ]; then
@@ -76,7 +76,7 @@ while [ "$#" -ne 0 ]; do
 		;;
 	esac
 done
-V_EXITCODE=0
+EXITCODE=0
 C_OLDTMPDIR="${TMPDIR}"
 
 if [ -z "${C_TMP}" ]; then
@@ -89,7 +89,7 @@ fi
 export TMPDIR="${C_TMP}"
 C_ACTUALTMP=$(mktemp -d)
 export TMPDIR="${C_ACTUALTMP}"
-trap 'rm -rf "${C_ACTUALTMP}"; exit ${V_EXITCODE}' 0 1 2 3 15
+trap 'rm -rf "${C_ACTUALTMP}"; exit ${EXITCODE}' 0 1 2 3 15
 if [ -z "${C_SRC}" ]; then
 	C_SRC=$(pwd)
 fi
@@ -99,13 +99,13 @@ if [ -z "${C_OUT}" ]; then
 fi
 export TMPDIR="${C_OLDTMPDIR}"
 if [ ! -d "${C_SRC}" ]; then
-	V_EXITCODE=1;exit ${V_EXITCODE}
+	EXITCODE=1;exit ${EXITCODE}
 fi
 if [ ! -d "${C_TMP}" ]; then
-	V_EXITCODE=1;exit ${V_EXITCODE}
+	EXITCODE=1;exit ${EXITCODE}
 fi
 if [ ! -d "${C_OUT}" ]; then
-	V_EXITCODE=1;exit ${V_EXITCODE}
+	EXITCODE=1;exit ${EXITCODE}
 fi
 
 ########################################################
@@ -123,10 +123,10 @@ fi
 # C_SRC -- Contains the source path directory, the build steps shall only access this folder in read only mode
 # C_TMP -- Contains the temporary directory
 # C_OUT -- Contains the output path directory
-# V_ExitCode 0 on success
+# ExitCode 0 on success
 
-V_EXITCODE=0
+EXITCODE=0
 
 #TODO: The build steps to build the project shall be implemented here
 
-exit ${V_EXITCODE}
+exit ${EXITCODE}

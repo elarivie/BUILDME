@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+# pylint: disable=invalid-name
 """
 This is a script to build the project.
 
-It is using template_BUILDME_python3 v7.
+It is using template_BUILDME_python3 v8.
 
 This script:
 	- Should be named "BUILDME"
@@ -13,13 +13,25 @@ This script:
 	- Should contains all the project build process steps implemented into the function BUILDME (see below)
 """
 
-from typing import Sequence
-from typing import Optional
+import sys; sys.dont_write_bytecode = True; sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]  # noqa: E702 F821
+
+from typing import List  # pylint: disable=wrong-import-position
+from typing import Optional  # pylint: disable=wrong-import-position
+from typing import Sequence  # pylint: disable=wrong-import-position
+from typing import Tuple  # pylint: disable=wrong-import-position
+import argparse  # pylint: disable=wrong-import-position
+import os  # pylint: disable=wrong-import-position
+import pathlib  # pylint: disable=wrong-import-position
+import shutil  # pylint: disable=wrong-import-position
+import tempfile  # pylint: disable=wrong-import-position
+
+from contextlib import ExitStack  # pylint: disable=wrong-import-position
+from contextlib import suppress  # pylint: disable=wrong-import-position
 
 S_USE_RAM_TEMP_FOLDER: bool = True
 
 
-def BUILDME(s: str, t: str, o: str) -> int:
+def BUILDME(s: pathlib.Path, t: pathlib.Path, o: pathlib.Path) -> int:  # pylint: disable=C0103
 	"""
 	Build the project.
 
@@ -34,133 +46,110 @@ def BUILDME(s: str, t: str, o: str) -> int:
 ########################################################
 ########################################################
 ############################
-############################ Copy this template build executable to your own project root folder
-############################ Anything above this line is considered part of your project
-############################ Anything below this line is part of the BUILDME project <https://github.com/elarivie/BUILDME> and is licensed under GPLv3
-############################ Note: You don't have to edit anything below this line, if you have to, please fill an issue at https://github.com/elarivie/BUILDME
+# Copy this template build executable to your own project root folder
+# Anything above this line is considered part of your project
+# Anything below this line is part of the BUILDME project <https://github.com/elarivie/BUILDME> and is licensed under GPLv3
+# Note: You don't have to edit anything below this line, if you have to, please fill an issue at https://github.com/elarivie/BUILDME
 ############################
 ########################################################
 ########################################################
 
 
-def main(p_Args: Sequence[str]) -> int:
+def find_ram_temp() -> Optional[pathlib.Path]:
+	"""Find the RAM temp folder, returns None if not found."""
+	try:
+		# Use RAM temp folder if available
+		result = pathlib.Path(os.sep, "run", "user", str(os.getuid()))
+		return result if result.is_dir() else None
+	except AttributeError:
+		return None  # os.getuid() is only available on Unix (it is the only os which might have a ram temp folder anyway)
+
+
+def purge(path_to_purge: Optional[pathlib.Path]) -> None:
+	"""Purge 'something' on disk or throws an AssertionError if it fails to do so."""
+	# Sometimes removing an element from disk fails.
+	# Known possible cause:
+	#
+	# - Permission issue
+	# - On OS Windows if the cwd is within the folder being deleted
+	# - On OS Windows if the element is or contains long file path
+	#
+	# This purge method will therefore be proactive and attempt to clear as much as possible using other strategies
+	#  Since the element destiny is to be deleted we can alter its content:
+	#
+	#  1- Adjust permission
+	#  2- Wipe the content of files(to make sure no secret are exposed even if an element can't be deleted).
+	#  3- Rename folder content element to "A" (to reduce file path length and to make sure no secret are exposed)
+	#  - At the end only only the problematic elements will remain on disk.
+	if path_to_purge is None: return
+	if not path_to_purge.exists(): return
+
+	if True:  # Happy path.
+		with suppress(BaseException): path_to_purge.unlink()
+		with suppress(BaseException): shutil.rmtree(path_to_purge)
+		if not path_to_purge.exists(): return
+
+		with suppress(BaseException): os.lchown(path_to_purge, os.getuid(), os.getgid())  # Adjust ownership.
+
+		original_cwd: pathlib.Path = pathlib.Path.cwd()
+	try:
+		os.chdir(pathlib.Path("/"))  # Move the current working directory away
+		if path_to_purge.is_dir() and not path_to_purge.is_symlink():
+			with suppress(BaseException): path_to_purge.chmod(0o700)  # Adjust permission.
+			with suppress(BaseException): list(map(purge, list(path_to_purge.iterdir())))  # Clear content
+			for child_to_purge in path_to_purge.iterdir(): purge(child_to_purge)
+			with suppress(BaseException): path_to_purge.rmdir()  # Quick delete attempt.
+
+			with suppress(BaseException): map(lambda x: x.replace(x.with_name("A")), path_to_purge.iterdir())  # type: ignore[misc]  # NOQA  # Reduce file path length of the content.
+		else:
+			with suppress(BaseException): path_to_purge.chmod(0o600)  # Adjust permission.
+			with suppress(BaseException): path_to_purge.unlink()  # Quick delete attempt.
+			if path_to_purge.is_file() and not path_to_purge.is_symlink():
+				with suppress(BaseException): open(path_to_purge, "w").close()  # Clear the content.
+	finally:
+		with suppress(BaseException): path_to_purge.unlink()  # Quick delete attempt.
+		with suppress(BaseException): path_to_purge.rmdir()  # Quick delete attempt.
+		with suppress(BaseException): os.chdir(original_cwd)  # Restore original current working directory (if it still exists).
+
+		if path_to_purge.exists(): raise AssertionError(f"Can't delete — {path_to_purge}")
+
+
+def main(p_args: Sequence[str]) -> int:
 	"""Main."""
-	import argparse
-	parser = argparse.ArgumentParser(
-		description="Build the project", epilog="""
-Exit code 0 if build is successfull
-"""
-	)
-	import os
-	parser.add_argument("-s", help="source folder (Default: Current working directory)", action="store", default=os.getcwd())
+	exit_code: Optional[int] = None
+
+	parser = argparse.ArgumentParser(description="Build the project", epilog="Exit code 0 if build is successfull\n\n")
+	parser.add_argument("-s", help="source folder (Default: Current working directory)", action="store", default=pathlib.Path.cwd())
 	parser.add_argument("-t", help="temporary folder (Default: new temporary directory in the system temporary directory or RAM temp folder if available)", action="store", default=None)
 	parser.add_argument("-o", help="output folder, shall not already exist (Default: new temporary directory in TEMPFOLDER)", action="store", default=None)
 	parser.add_argument("-V", "--version", action="version", version="BUILDME 2.0.0")
-	c_Args = parser.parse_args(p_Args)
+	c_args = parser.parse_args(p_args)
 
-	def _actualpath(p_Path: Optional[str]) -> Optional[str]:
-		return None if p_Path is None else os.path.normcase(os.path.realpath(os.path.normpath(p_Path)))
+	c_path: List[Optional[pathlib.Path]] = list(map(lambda x: None if x is None else pathlib.Path(x).resolve(), iter((c_args.s, c_args.t, c_args.o))))
 
-	c_path = [_actualpath(x) for x in [c_Args.s, c_Args.t, c_Args.o]]
+	if c_path[2] is not None:
+		c_path[2].mkdir()  # Create the output file as requested (crash if it already exists)
 
-	if c_path[1] is None:
-		try:
-			# Use RAM temp folder if available.
-			c_path[1] = os.path.abspath(os.path.join(os.sep, "run", "user", str(os.getuid())))
-			assert c_path[1] is not None
-			if (not S_USE_RAM_TEMP_FOLDER) or (not os.path.isdir(c_path[1])):
-				# Do not use RAM temp folder.
-				c_path[1] = None
-		except AttributeError:
-			pass  # os.getuid() is only available on Unix (it is the only os which might have a ram temp folder anyway)
-	v_BuildResult = None
-	c_OrigCWD = os.getcwd()
-	v_TmpPath = None
-	v_BuildError = True
-	try:
-		import tempfile
-		with tempfile.TemporaryDirectory(suffix="", prefix="", dir=c_path[1]) as c_TmpFolder:
-			v_TmpPath = _actualpath(c_TmpFolder)
-			assert v_TmpPath is not None
-			try:
-				c_path[1] = None
-				for i in [0, 1, 2]:
-					if c_path[i] is None:
-						c_path[i] = _actualpath(tempfile.mkdtemp(suffix="", prefix="", dir=v_TmpPath))
+	if c_path[1] is None and S_USE_RAM_TEMP_FOLDER:
+		# Use RAM temp folder if available.
+		c_path[1] = find_ram_temp()
 
-				assert c_path[1] is not None
-				os.chdir(c_path[1])  # Make sure that the current working directory is the Temp folder before doing the build steps
-				assert None not in c_path
-				v_BuildResult = BUILDME(*c_path)
-				# From this point, the only thing left to do is to delete the temp folder
-				v_BuildError = False
-			finally:
-				if str(_actualpath(os.getcwd())).startswith(v_TmpPath + os.sep):
-					os.chdir(c_OrigCWD)  # Get out of the temp folder since it is about to be deleted
-	except BaseException:
-		assert v_TmpPath is not None
-		if v_BuildError:
-			raise
-		else:
-			pass  # Problem cleaning temp folder... will be handled in the finally block
-	finally:
-		if v_TmpPath is not None and os.path.isdir(v_TmpPath):
-			# Failed to remove temp folder
-			# Known possible cause:
-			# - On OS Windows if the Tmp folder contains element with long file path
-			# Will now attempt other strategies to to clean up as much as possible
-			# Since the temp folder destiny is to be deleted we can alter its content
-			#  Walk multiple time the temp directory:
-			#  - Remove each file and folder specifically
-			#  - If delete is not possible, rename them with a shorter name
-			#  The objective is to:
-			#  - Reduce as much as possible the file path length
-			#  - Keep only the problematic files/folder
-			try:
-				v_SawImprovement = True
-				while v_SawImprovement:
-					v_SawImprovement = False
-					for c_Root, c_Dirs, c_Files in os.walk(v_TmpPath, topdown=False):
-						for c_Name in c_Files:
-							try:
-								os.unlink(os.path.join(c_Root, c_Name))
-								v_SawImprovement = True
-							except BaseException:
-								try:
-									os.replace(os.path.join(c_Root, c_Name), os.path.join(c_Root, "A"))  # Rename to a single character name
-									v_SawImprovement = True
-								except BaseException:
-									pass  # Will retry later
-						for c_Name in c_Dirs:
-							try:
-								os.rmdir(os.path.join(c_Root, c_Name))
-								v_SawImprovement = True
-							except BaseException:
-								try:
-									os.replace(os.path.join(c_Root, c_Name), os.path.join(c_Root, "A"))  # Rename to a single character name
-									v_SawImprovement = True
-								except BaseException:
-									pass  # Will retry later
-				os.rmdir(v_TmpPath)  # Give it a try now that the content might have been deleted
-			except BaseException:
-				pass  # This is not a reason to fail the build yet...
-			if os.path.exists(v_TmpPath):
-				# Strangely the temp folder is still present...
-				# No known reason to reach this area but will try other strategies anyway
-				import shutil
-				try:
-					shutil.rmtree(v_TmpPath)  # Try a deep delete of the temp folder.
-				except BaseException:
-					pass  # This is not a reason to fail the build yet...
-				if os.path.exists(v_TmpPath):
-					import time
-					time.sleep(5)  # In last resort give five seconds to other processes and the OS to breath in case they need to cleanly release their handle on the temp folder
-					shutil.rmtree(v_TmpPath)  # Last chance to delete temp, if it does not work, it will throw an exception to the user... we did our best.
-	assert not os.path.exists(v_TmpPath), "Temp folder could not be cleaned: " + str(v_TmpPath)
-	return -1 if v_BuildResult is None else v_BuildResult
+	with ExitStack() as stack:  # Handle the current working directory.
+		c_orig_cwd: pathlib.Path = pathlib.Path.cwd()
+		stack.callback(lambda: os.chdir(c_orig_cwd))
+
+		with ExitStack() as stack:  # Handle the temporary folder.
+			v_tmp_path: pathlib.Path = pathlib.Path(tempfile.mkdtemp(suffix="", prefix="", dir=c_path[1]))
+			stack.callback(lambda: purge(v_tmp_path))
+
+			c_path[1] = None
+			c_path_final: Tuple[pathlib.Path, ...] = tuple(map(lambda x: x if x is not None else pathlib.Path(str(tempfile.mkdtemp(suffix="", prefix="", dir=v_tmp_path))), iter(c_path)))
+			c_path_final = (c_path_final[0], c_path_final[1], c_path_final[2])
+			os.chdir(c_path_final[1])  # Make sure that the current working directory is set to the Temp folder before doing the build steps
+			exit_code = BUILDME(*c_path_final)
+	if exit_code is None: raise AssertionError()
+	return exit_code
 
 
 if "__main__" == __name__:
-	import sys
-	sys.dont_write_bytecode = True
 	sys.exit(main(sys.argv[1:]))

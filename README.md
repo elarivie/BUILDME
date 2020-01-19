@@ -30,11 +30,11 @@ optional arguments:
   -t TEMP
                       temporary folder (Default: system temporary directory or RAM temp folder when available)
   -o OUTPUT
-                      output folder, shall already exist (Default: temporary directory)
+                      output folder, shall not already exist (Default: temporary directory)
   -V, --version
                       show BUILDME version number and exit
 
-Exit code 0 only if the build is successful including the temporaty files cleaning.
+Exit code 0 only if the build is successful including the temporary files cleaning.
 
 
 ```
@@ -47,13 +47,13 @@ implementation. It may be implemented with any programming language.
 
 Using BUILDME does not restrict the use of any build tools or compiler
 since some build steps that it contains may very well call external
-build tools like ant, javac, gcc, grunt, make, maven, etc.
+build tools like ant, javac, gcc, grunt, make, maven, npm, rake, etc…
 
 
 Important Note
 ----
 
-**As a convenience** to accomodate environment constraints some
+**As a convenience** to accommodate environment constraints some
 facilitator files may be present in a project. Some environment
 constraints may be for example:
 
@@ -70,7 +70,7 @@ Facilitator's files purpose are only to forward and delegate the build
 request to the BUILDME executable file and shall therefore not implement
 any releasable build step.
 
-**As a convenience** to accomodate or ease development workflows,
+**As a convenience** to accommodate or ease development workflows,
 nothing prevent to have alternative methodologies to build or partially
 build a project, **but** in the end only the output of the BUILDME shall
 be used for final release.
